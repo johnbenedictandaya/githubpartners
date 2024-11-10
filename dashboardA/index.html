@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Dashboard</title>
+
+    <!-- FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <!-- MATERIAL ICONS -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <!-- Include ApexCharts for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Include Leaflet.js for the map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- CUSTOM CSS -->
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1d2634;
+            color: #9e9ea4;
+            font-family: 'KANIT', sans-serif;
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Dashboard container */
+        .dashboard-container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cards {
+            background-color: #263043;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex: 1;
+            min-width: 300px;
+            margin: 20px;
+        }
+
+        .card-header {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .chart-container, .map-container {
+            width: 100%;
+            height: 300px;
+        }
+
+        .property-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .property-item {
+            background-color: #263043;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .property-item h3 {
+            margin-top: 0;
+        }
+
+        .property-item span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+
+        <!-- HEADER -->
+        <header class="header">
+          <div class="menu-icon" onclick="openSidebar()">
+            <span class="material-icons-outlined">menu</span>
+          </div>
+          <div class="header-left">
+            <span class="material-icons-outlined">search</span>
+          </div>
+          <div class="header-right">
+            <span class="material-icons-outlined">notifications</span>
+            <span class="material-icons-outlined">email</span>
+            <span class="material-icons-outlined">account_circle</span>
+          </div>
+        </header>
+        <!-- END HEADER -->
+  
+        <!-- SIDEBAR -->
+        <aside id="sidebar">
+          <div class="sidebar-title">
+            <div class="sidebar-brand">
+              <span class="material-icons-outlined">structure</span> A.I.
+            </div>
+            <span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+          </div>
+  
+          <ul class="sidebar-list">
+            <li class="sidebar-list-item">
+              <a href="#" target="_blank">
+                <span class="material-icons-outlined">dashboard</span> Dashboard
+              </a>
+            </li>
+            <li class="sidebar-list-item">
+              <a href="#" target="_blank">
+                <span class="material-icons-outlined">groups</span> Customers
+              </a>
+            </li>
+            <li class="sidebar-list-item">
+              <a href="#" target="_blank">
+                <span class="material-icons-outlined">fact_check</span> Inventory
+              </a>
+            </li>
+            <li class="sidebar-list-item">
+              <a href="#" target="_blank">
+                <span class="material-icons-outlined">poll</span> Reports
+              </a>
+            </li>
+            <li class="sidebar-list-item">
+              <a href="#" target="_blank">
+                <span class="material-icons-outlined">settings</span> Settings
+              </a>
+            </li>
+          </ul>
+        </aside>
+        <!-- END SIDEBAR -->
+  
+        <!-- MAIN -->
+        <main class="main-container">
+          <div class="main-title">
+            <h2>DASHBOARD</h2>
+          </div>
+  
+          <div class="main-cards">
+  
+            <div class="card">
+              <div class="card-inner">
+                <h3>PROPERTIES FOR SALE</h3>
+                <span class="material-icons-outlined">inventory_2</span>
+              </div>
+              <h1>249</h1>
+            </div>
+  
+            <div class="card">
+              <div class="card-inner">
+                <h3>PROPERTIES SOLD</h3>
+                <span class="material-icons-outlined">category</span>
+              </div>
+              <h1>25</h1>
+            </div>
+  
+            <div class="card">
+              <div class="card-inner">
+                <h3>CUSTOMERS</h3>
+                <span class="material-icons-outlined">groups</span>
+              </div>
+              <h1>1500</h1>
+            </div>
+  
+            <div class="card">
+              <div class="card-inner">
+                <h3>GOAL</h3>
+                <span class="material-icons-outlined">notification_important</span>
+              </div>
+              <h1>56</h1>
+            </div>
+  
+          </div>
+
+        <!-- Second Row: Sales, Views, and Bar Graph Charts -->
+        <div class="row">
+            <div class="cards chart-container" id="salesChart"></div>
+            <div class="cards chart-container" id="viewsChart"></div>
+        </div>
+
+        <div class="row">
+            <div class="cards chart-container" id="barChart"></div>
+        </div>
+
+            <!-- Third Row: Map -->
+            <div class="row">
+                <div class="cards map-container" id="propertyMap"></div>
+            </div>
+
+        <!-- Fourth Row: Property List -->
+        <div class="row">
+            <div class="cards">
+                <div class="card-header">Property Listings</div>
+                <div class="property-list">
+                    <div class="property-item">
+                        <h3>2-Bedroom Apartment</h3>
+                        <p><span>Price:</span> $350,000</p>
+                        <p><span>Location:</span> New York, NY</p>
+                    </div>
+                    <div class="property-item">
+                        <h3>3-Bedroom House</h3>
+                        <p><span>Price:</span> $500,000</p>
+                        <p><span>Location:</span> Los Angeles, CA</p>
+                    </div>
+                    <div class="property-item">
+                        <h3>1-Bedroom Condo</h3>
+                        <p><span>Price:</span> $250,000</p>
+                        <p><span>Location:</span> Chicago, IL</p>
+                    </div>
+                    <div class="property-item">
+                        <h3>4-Bedroom Apartment</h3>
+                        <p><span>Price:</span> $570,000</p>
+                        <p><span>Location:</span> Chicago, IL</p>
+                    </div>
+                    <div class="property-item">
+                        <h3>2-Bedroom House</h3>
+                        <p><span>Price:</span> $250,000,000</p>
+                        <p><span>Location:</span> HK</p>
+                    </div>
+                    <div class="property-item">
+                        <h3>3-Bedroom Condo</h3>
+                        <p><span>Price:</span> $600,000</p>
+                        <p><span>Location:</span> Manila, PH</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sales Chart using ApexCharts
+        var salesOptions = {
+            series: [{
+                name: 'Sold Properties',
+                data: [10, 15, 25, 30, 45, 55, 70]
+            }],
+            chart: {
+                type: "bar",
+                background: "transparent",
+                height: 350,
+                toolbar: {
+                    show: false,
+                },
+            },
+            colors: [
+                "#fd0363",
+                "#cc095d",
+                "#9c1057",
+                "#6b1650",
+                "#3b1d4a",
+                "#0a2344",
+                "#00193b"
+            ],
+            plotOptions: {
+                bar: {
+                    distributed: true,
+                    borderRadius: 4,
+                    horizontal: false,
+                    columnWidth: "40%",
+                }
+            },
+            dataLabels: {
+                enabled: false,
+            },
+            fill: {
+                opacity: 1,
+            },
+            grid: {
+                borderColor: "#55596e",
+                yaxis: {
+                    lines: {
+                        show: true,
+                    },
+                },
+            },
+            legend: {
+                labels: {
+                    colors: "#f5f7ff",
+                },
+                show: true,
+                position: "top",
+            },
+            stroke: {
+                colors: ["transparent"],
+                show: true,
+                width: 2,
+            },
+            tooltip: {
+                shared: true,
+                intersect: false,
+                theme: "dark",
+            },
+            xaxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                title: {
+                    style: {
+                        color: "#f5f7ff",
+                    },
+                },
+                axisBorder: {
+                    show: true,
+                    color: "#55596e",
+                },
+                axisTicks: {
+                    show: true,
+                    color: "#55596e",
+                },
+                labels: {
+                    style: {
+                        colors: "#f5f7ff",
+                    },
+                },
+            },
+            yaxis: {
+                title: {
+                    text: "Count",
+                    style: {
+                        color: "#f5f7ff",
+                    },
+                },
+                axisBorder: {
+                    show: true,
+                    color: "#55596e",
+                },
+                axisTicks: {
+                    show: true,
+                    color: "#55596e",
+                },
+                labels: {
+                    style: {
+                        colors: "#f5f7ff",
+                    },
+                },
+            }
+        };
+
+        // Initialize the chart with the above options
+        var salesChart = new ApexCharts(document.querySelector("#salesChart"), salesOptions);
+        salesChart.render();
+
+        // Property Views Chart using ApexCharts
+        const viewsOptions = {
+            series: [
+                {
+                    name: 'Property Views',
+                    data: [56, 78, 40, 68, 35, 89, 109],
+                },
+                {
+                    name: 'Sales Orders',
+                    data: [23, 45, 56, 43, 23, 61, 67],
+                },
+            ],
+            chart: {
+                type: 'area',
+                background: 'transparent',
+                height: 350,
+                stacked: false, // You can set this to `true` if you want the series to stack
+                toolbar: {
+                    show: false,
+                },
+            },
+            colors: ['#6a4c93', '#ccd5ae'],
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            dataLabels: {
+                enabled: false,
+            },
+            fill: {
+                gradient: {
+                    opacityFrom: 0.4,
+                    opacityTo: 0.1,
+                    shadeIntensity: 1,
+                    stops: [0, 100],
+                    type: 'vertical',
+                },
+                type: 'gradient',
+            },
+            grid: {
+                borderColor: '#55596e',
+                yaxis: {
+                    lines: {
+                        show: true,
+                    },
+                },
+                xaxis: {
+                    lines: {
+                        show: true,
+                    },
+                },
+            },
+            legend: {
+                labels: {
+                    colors: '#f5f7ff',
+                },
+                show: true,
+                position: 'top',
+            },
+            markers: {
+                size: 6,
+                strokeColors: '#1b2635',
+                strokeWidth: 3,
+            },
+            stroke: {
+                curve: 'smooth',
+            },
+            xaxis: {
+                axisBorder: {
+                    color: '#55596e',
+                    show: true,
+                },
+                axisTicks: {
+                    color: '#55596e',
+                    show: true,
+                },
+                labels: {
+                    offsetY: 5,
+                    style: {
+                        colors: '#f5f7ff',
+                    },
+                },
+            },
+            yaxis: [
+                {
+                    title: {
+                        text: 'Purchase Orders',
+                        style: {
+                            color: '#f5f7ff',
+                        },
+                    },
+                    labels: {
+                        style: {
+                            colors: ['#f5f7ff'],
+                        },
+                    },
+                },
+                {
+                    opposite: true,
+                    title: {
+                        text: 'Sales Orders',
+                        style: {
+                            color: '#f5f7ff',
+                        },
+                    },
+                    labels: {
+                        style: {
+                            colors: ['#f5f7ff'],
+                        },
+                    },
+                },
+            ],
+            tooltip: {
+                shared: true,
+                intersect: false,
+                theme: 'dark',
+            },
+        };
+
+        var viewsChart = new ApexCharts(document.querySelector("#viewsChart"), viewsOptions);
+        viewsChart.render();
+
+        // Bar Chart for Property Sales using ApexCharts
+        var barOptions = {
+            series: [{
+                name: 'Properties Sold',
+                data: [12, 18, 30, 45, 50, 60, 70]
+            }],
+            chart: {
+                type: 'bar',
+                height: 300
+            },
+            xaxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                title: {
+                    style: {
+                        color: "#f5f7ff",
+                    },
+                },
+            },
+            colors: ['#e9edc9'],
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    endingShape: 'rounded'
+                }
+            },
+            tooltip: {
+                theme: 'dark'
+            }
+        };
+
+        var barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);
+        barChart.render();
+
+        // Map setup using Leaflet.js
+        var map = L.map('propertyMap').setView([37.7749, -122.4194], 12); // San Francisco coordinates
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Adding markers for properties
+        var marker1 = L.marker([37.7749, -122.4194]).addTo(map);
+        marker1.bindPopup("<b>San Francisco Property</b><br>Price: $450,000");
+
+        var marker2 = L.marker([34.0522, -118.2437]).addTo(map); // Los Angeles coordinates
+        marker2.bindPopup("<b>Los Angeles Property</b><br>Price: $850,000");
+    </script>
+
+</body>
+</html>
