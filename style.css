@@ -48,7 +48,7 @@ header nav ul li.active {
     margin-top: -50px;
 }
 
-li a{
+ul li a{
   text-decoration: none;
   color: white;
 }
